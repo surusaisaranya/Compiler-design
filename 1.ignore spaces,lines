@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <ctype.h>
+
+void remove_comments(char *code) {
+    char *p = code, *q = code;
+    while (*p) {
+        if (*p == '/' && *(p + 1) == '/') while (*p && *p++ != '\n');
+        else if (*p == '/' && *(p + 1) == '*') while (*p && (*p++ != '*' || *p != '/')) p++;
+        else *q++ = *p++;
+    }
+    *q = '\0';
+}
+
+void tokenize(char *code) {
+    char *p = code;
+    while (*p) {
+        if (isspace(*p)) p++;
+        else if (isalpha(*p) || *p == '_') {
+            char identifier[256] = ""; int i = 0;
+            while (isalnum(*p) || *p == '_') identifier[i++] = *p++;
+            printf("Identifier/Keyword: %s\n", identifier);
+        } else if (isdigit(*p)) {
+            int number = 0; while (isdigit(*p)) number = number * 10 + (*p++ - '0');
+            printf("Numeric Literal: %d\n", number);
+        } else if (*p == '"' || *p == '\'') {
+            char delimiter = *p++; printf("String Literal: ");
+            while (*p && *p != delimiter) putchar(*p++);
+            p++; printf("\n");
+        } else printf("Non-Word Character: %c\n", *p++);
+    }
+}
+
+int main() {
+    char code[] = "#include <stdio.h>\n\nint main() {\n    // Print Hello, World!\n    printf(\"Hello, World!\\n\");\n    return 0;\n}";
+    remove_comments(code);
+    tokenize(code);
+    return 0;
+}
